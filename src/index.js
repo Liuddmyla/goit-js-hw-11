@@ -1,49 +1,56 @@
 import './css/styles.css';
 import fetchImages from './fetchImages';
-import lodashDebounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
 
-const DEBOUNCE_DELAY = 300;
 
-const form = document.getElementById('search-form');
+const form = document.getElementById('search-form'); 
+const gallery = document.querySelector('.gallery');
 
 
+form.addEventListener('submit', onInput);
 
-form.addEventListener('submit', lodashDebounce(onInput, DEBOUNCE_DELAY));
+function onInput(e) {   
+    e.preventDefault();  
+    gallery.innerHTML = '';
+    const value = e.currentTarget.elements.searchQuery.value.trim();
 
-function onInput(e) {
-    e.preventDefault();
-    const value = e.target.value.trim();
-    if (value === '') {
-        
-        return;
+       if (value === '') {
+           gallery.innerHTML = '';
+           return;
     }
 
-    fetchCountries(value).then((data) => {
-       
-        console.log(data);
+    fetchImages(value).then(({hits}) => {
+        if (hits.length === 0) {
+           Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+       }
+        
+        createMarkup(hits);
        
     }).catch((err)=> console.log("Error!"));
 }
 
-// function createMarkupList(data) {
-//     const markupList = data.reduce((markupList, { flags, name }) => { return ` <li class="country-item"> <img src = ${flags.svg} class="country-img"/> <p class="country-name">${name.official}</p></li> ` + markupList }, '');
-   
-//     countryList.innerHTML = markupList;
-// }
+function createMarkup(hits) {    
+    const markup = hits.reduce((markup, { webformatURL, tags, likes, views, comments, downloads}) => {
 
-// function createMarkupCard(data) {    
-//     const markupCard = data.reduce((markupCard, { flags, name, capital, population, languages }) => {
-
-//     return `<img src = ${flags.svg} class="country-img"/> 
-//     <p class="country-name-official">${name.official}</p>
-//     <div class="box-item"><p class="country-text">Capital:</p> <p>${capital}</p></div>
-//     <div class="box-item"><p class="country-text">Population:</p> <p>${population}</p> </div>
-//     <div class="box-item"><p class="country-text">Languages:</p> <p>${Object.values(languages).join(", ")}</p></div> ` + markupCard }, '');
+    return `<div class="photo-card">
+  <img class="img-card" src="${webformatURL}" alt="${tags}" width='320' loading="lazy" />
+  <div class="info">
+    <p class="info-item">
+      <b>Likes ${likes}</b>
+    </p>
+    <p class="info-item">
+      <b>Views ${views}</b>
+    </p>
+    <p class="info-item">
+      <b>Comments ${comments}</b>
+    </p>
+    <p class="info-item">
+      <b>Downloads ${downloads}</b>
+    </p>
+  </div>
+</div> ` + markup }, '');
     
-//     countryInfo.innerHTML = markupCard;
-// }
+    gallery.insertAdjacentHTML('beforeend', markup);
+}
 
-// function onError(err) {
-//     Notiflix.Notify.failure("Oops, there is no country with that name");
-// }
+
