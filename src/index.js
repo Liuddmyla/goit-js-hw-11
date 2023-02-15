@@ -1,10 +1,11 @@
 import './css/styles.css';
-import fetchImages from './fetchImages';
+import fetchImages from './fetchImages.js';
 import Notiflix from 'notiflix';
 
 
 const form = document.getElementById('search-form'); 
 const gallery = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-more');
 
 
 form.addEventListener('submit', onInput);
