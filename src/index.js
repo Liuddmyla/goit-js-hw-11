@@ -1,33 +1,57 @@
+
 import './css/styles.css';
-import fetchImages from './fetchImages.js';
+import ImagesApiService from './ImagesApiService.js';
+import LoadMoreBtn from './LoadMoreBtn.js';
 import Notiflix from 'notiflix';
 
 
 const form = document.getElementById('search-form'); 
 const gallery = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('.load-more');
+// const loadMoreBtn = document.querySelector('.load-more');
+
+const imagesApiService = new ImagesApiService();
+const loadMoreBtn = new LoadMoreBtn({
+  selector: ".load-more",
+  isHidden: true
+});
 
 
 form.addEventListener('submit', onInput);
+loadMoreBtn.button.addEventListener('click', fetchImages);
 
 function onInput(e) {   
-    e.preventDefault();  
-    gallery.innerHTML = '';
+    e.preventDefault();      
     const value = e.currentTarget.elements.searchQuery.value.trim();
+ 
+    imagesApiService.resetPage();  
+    clearImages();
+    loadMoreBtn.show();
+
+    imagesApiService.query = value;
 
        if (value === '') {
            gallery.innerHTML = '';
            return;
-    }
-
-    fetchImages(value).then(({hits}) => {
-        if (hits.length === 0) {
-           Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
        }
-        
-        createMarkup(hits);
+
+   fetchImages().finally(()=> form.reset());
+}
+
+function fetchImages() {
+
+  loadMoreBtn.disable();
+
+  return imagesApiService.getImages().then((hits) => {
+    if (hits.length === 0) throw new Error(Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again."));
        
-    }).catch((err)=> console.log("Error!"));
+    createMarkup(hits);
+
+    // if(hits.totalHits)
+    
+
+    loadMoreBtn.enable();
+       
+  }).catch(onError);
 }
 
 function createMarkup(hits) {    
@@ -51,7 +75,14 @@ function createMarkup(hits) {
   </div>
 </div> ` + markup }, '');
     
-    gallery.insertAdjacentHTML('beforeend', markup);
+  gallery.insertAdjacentHTML('beforeend', markup);
+  
 }
 
+function clearImages() {
+  gallery.innerHTML = '';
+}
 
+function onError(err) {
+  loadMoreBtn.hide();
+}
