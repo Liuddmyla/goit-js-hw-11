@@ -41,13 +41,22 @@ function fetchImages() {
 
   loadMoreBtn.disable();
 
-  return imagesApiService.getImages().then((hits) => {
-    if (hits.length === 0) throw new Error(Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again."));
+  return imagesApiService.getImages().then((data) => {
+    if (data.hits.length === 0) throw new Error(Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again."));
        
-    createMarkup(hits);
+    createMarkup(data.hits);
 
-    // if(hits.totalHits)
-    
+    const totalPages = Math.ceil(data.totalHits / imagesApiService.per_page);
+
+    if (imagesApiService.page === totalPages) {
+      loadMoreBtn.hide();
+      Notiflix.Notify.warning(
+        "We're sorry, but you've reached the end of search results.");
+    } else {
+      loadMoreBtn.show();
+    }
+
+    console.log(data);
 
     loadMoreBtn.enable();
        
@@ -86,3 +95,6 @@ function clearImages() {
 function onError(err) {
   loadMoreBtn.hide();
 }
+
+
+
