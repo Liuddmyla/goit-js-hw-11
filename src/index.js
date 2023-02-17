@@ -28,7 +28,7 @@ function onInput(e) {
     imagesApiService.query = value;
 
     if (value === '') {
-      gallery.innerHTML = '';     
+      gallery.innerHTML = '';
       return;
     }
   
