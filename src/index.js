@@ -4,7 +4,6 @@ import ImagesApiService from './ImagesApiService.js';
 import LoadMoreBtn from './LoadMoreBtn.js';
 import Notiflix from 'notiflix';
 
-
 const form = document.getElementById('search-form'); 
 const gallery = document.querySelector('.gallery');
 
