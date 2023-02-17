@@ -1,4 +1,3 @@
-import Notiflix from 'notiflix';
 import axios from "axios";
 
 export default class ImagesApiService{
@@ -8,21 +7,14 @@ export default class ImagesApiService{
         this.per_page = 40;
     }
 
-    getImages(query) {
+    async getImages(query) {
         
-        const URL = `https://pixabay.com/api/?key=33641920-b059883ebd7147c979fd953b4&q=${this.query}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.page}`;
+        const URL = `https://pixabay.com/api/?key=33641920-b059883ebd7147c979fd953b4&q=${this.query}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${this.per_page}&page=${this.page}`;
 
-        return fetch(URL).then(
-            response => {
-                if (!response.ok) {
-                   throw new Error(Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again."));
-                }
-            return response.json();
-            }
-        ).then((data) => {
-            this.nextPage();
-            return data;
-        })
+        const response = await axios.get(URL);
+        this.nextPage();
+        return response.data;
+        
     }
 
     nextPage() {
