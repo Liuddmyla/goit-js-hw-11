@@ -3,6 +3,8 @@ import './css/styles.css';
 import ImagesApiService from './ImagesApiService.js';
 import LoadMoreBtn from './LoadMoreBtn.js';
 import Notiflix from 'notiflix';
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
 
 const form = document.getElementById('search-form'); 
 const gallery = document.querySelector('.gallery');
@@ -33,7 +35,7 @@ function onInput(e) {
     }
   
     loadMoreBtn.show();
-
+  
   fetchImages().finally(()=> form.reset());
 }
 
@@ -54,7 +56,14 @@ async function fetchImages() {
       if (imagesApiService.page === totalPages) {
       loadMoreBtn.hide();
       Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
-      } 
+    } 
+       
+    if (imagesApiService.page === 2) {     
+      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+    }
+
+    const simpleLightbox = new SimpleLightbox('.gallery a', { captionDelay: '250' });
+    simpleLightbox.refresh();
 
   }
   catch (err) {
@@ -63,11 +72,12 @@ async function fetchImages() {
 }
 
 
+
 function createMarkup(hits) {    
-    const markup = hits.reduce((markup, { webformatURL, tags, likes, views, comments, downloads}) => {
+    const markup = hits.reduce((markup, { webformatURL, tags, likes, views, comments, downloads, largeImageURL}) => {
 
     return `<div class="photo-card">
-    <img class="img-card" src="${webformatURL}" alt="${tags}" width='320' loading="lazy" />
+    <a href="${largeImageURL}"><img class="img-card" src="${webformatURL}" alt="${tags}" width='320' loading="lazy" /></a>
     <div class="info">
     <p class="info-item">
       <b>Likes ${likes}</b>
